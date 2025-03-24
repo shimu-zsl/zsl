@@ -4,10 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>邹思令的个人简历</title>
+    
+    <!-- 添加独立背景解决方案 -->
+    <script src="background-fix.js"></script>
+    
+    <!-- 原有样式表 -->
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <!-- 背景幻灯片 -->
+    <div class="background-slideshow">
+        <div class="slide"></div>
+        <div class="slide"></div>
+        <div class="slide"></div>
+        <div class="slide"></div>
+        <div class="slide"></div>
+    </div>
+    
     <div class="container">
         <header>
             <div class="photo-container">
@@ -176,6 +190,30 @@
                 </div>
             </div>
         </section>
+    </div>
+
+    <!-- 返回顶部按钮 -->
+    <button id="back-to-top" title="返回顶部">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <!-- 悬浮社交媒体栏 -->
+    <div class="social-sidebar">
+        <a href="https://github.com/" target="_blank" class="social-icon" title="GitHub">
+            <i class="fab fa-github"></i>
+        </a>
+        <a href="https://www.linkedin.com/" target="_blank" class="social-icon" title="LinkedIn">
+            <i class="fab fa-linkedin"></i>
+        </a>
+        <a href="https://www.zhihu.com/" target="_blank" class="social-icon" title="知乎">
+            <i class="fab fa-zhihu"></i>
+        </a>
+        <a href="https://weibo.com/" target="_blank" class="social-icon" title="微博">
+            <i class="fab fa-weibo"></i>
+        </a>
+        <a href="mailto:3166589183@qq.com" class="social-icon" title="邮件联系">
+            <i class="fas fa-envelope"></i>
+        </a>
     </div>
 
     <footer>
