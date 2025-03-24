@@ -1,4 +1,17 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // 背景幻灯片轮播
+    const slides = document.querySelectorAll('.background-slideshow .slide');
+    let currentSlide = 0;
+    
+    function nextSlide() {
+        slides[currentSlide].style.opacity = '0';
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].style.opacity = '1';
+    }
+    
+    // 每5秒切换一次背景
+    setInterval(nextSlide, 5000);
+    
     // 页面加载动画
     const sections = document.querySelectorAll('section');
     
@@ -38,6 +51,26 @@ document.addEventListener('DOMContentLoaded', function() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.style.width = entry.target.style.width;
+                // 添加计数器动画
+                const skillItem = entry.target.closest('.skill-item');
+                const percentage = entry.target.style.width.replace('%', '');
+                const counter = document.createElement('span');
+                counter.className = 'skill-percentage';
+                counter.textContent = '0%';
+                
+                if (!skillItem.querySelector('.skill-percentage')) {
+                    skillItem.appendChild(counter);
+                    
+                    let count = 0;
+                    const interval = setInterval(() => {
+                        count++;
+                        counter.textContent = count + '%';
+                        if (count >= parseInt(percentage)) {
+                            clearInterval(interval);
+                        }
+                    }, 20);
+                }
+                
                 observer.unobserve(entry.target);
             }
         });
@@ -49,18 +82,29 @@ document.addEventListener('DOMContentLoaded', function() {
         skillObserver.observe(skill);
     });
     
-    // 照片悬停效果
+    // 照片悬停3D效果
     const photoFrame = document.querySelector('.photo-frame');
     
     if (photoFrame) {
-        photoFrame.addEventListener('mouseover', function() {
-            this.style.transform = 'scale(1.05)';
-            this.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.2)';
+        photoFrame.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const deltaX = (x - centerX) / centerX * 10;
+            const deltaY = (y - centerY) / centerY * 10;
+            
+            this.style.transform = `perspective(1000px) rotateY(${deltaX}deg) rotateX(${-deltaY}deg) scale(1.05)`;
+            this.style.boxShadow = `${deltaX * 0.5}px ${deltaY * 0.5}px 16px rgba(0, 0, 0, 0.2)`;
         });
         
-        photoFrame.addEventListener('mouseout', function() {
-            this.style.transform = 'scale(1)';
+        photoFrame.addEventListener('mouseleave', function() {
+            this.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1)';
             this.style.boxShadow = 'none';
+            this.style.transition = 'all 0.5s ease-out';
         });
     }
     
@@ -97,8 +141,37 @@ document.addEventListener('DOMContentLoaded', function() {
             const icon = this.querySelector('i');
             
             if (icon) {
-                icon.style.transform = 'rotate(360deg)';
+                icon.style.transform = 'rotate(360deg) scale(1.2)';
                 icon.style.transition = 'transform 0.6s ease-in-out';
+                icon.style.color = '#f1c40f';
+            }
+            
+            // 添加闪光效果
+            const shine = document.createElement('div');
+            shine.className = 'award-shine';
+            shine.style.position = 'absolute';
+            shine.style.top = '0';
+            shine.style.left = '-100%';
+            shine.style.width = '50%';
+            shine.style.height = '100%';
+            shine.style.background = 'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%)';
+            shine.style.transform = 'skewX(-25deg)';
+            shine.style.transition = 'all 0.7s ease';
+            
+            if (!this.querySelector('.award-shine')) {
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(shine);
+                
+                setTimeout(() => {
+                    shine.style.left = '100%';
+                }, 10);
+                
+                setTimeout(() => {
+                    if (this.contains(shine)) {
+                        this.removeChild(shine);
+                    }
+                }, 700);
             }
         });
         
@@ -106,7 +179,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const icon = this.querySelector('i');
             
             if (icon) {
-                icon.style.transform = 'rotate(0)';
+                icon.style.transform = 'rotate(0) scale(1)';
+                icon.style.color = '';
             }
         });
     });
@@ -307,6 +381,163 @@ document.addEventListener('DOMContentLoaded', function() {
         
         animationObserver.observe(element);
     });
+    
+    // 添加鼠标跟踪动效
+    const cursor = document.createElement('div');
+    cursor.className = 'custom-cursor';
+    cursor.style.position = 'fixed';
+    cursor.style.width = '20px';
+    cursor.style.height = '20px';
+    cursor.style.borderRadius = '50%';
+    cursor.style.backgroundColor = 'rgba(52, 152, 219, 0.3)';
+    cursor.style.boxShadow = '0 0 15px rgba(52, 152, 219, 0.5)';
+    cursor.style.pointerEvents = 'none';
+    cursor.style.transform = 'translate(-50%, -50%)';
+    cursor.style.zIndex = '9999';
+    cursor.style.transition = 'transform 0.1s, width 0.3s, height 0.3s, background-color 0.3s';
+    document.body.appendChild(cursor);
+    
+    const cursorOuter = document.createElement('div');
+    cursorOuter.className = 'custom-cursor-outer';
+    cursorOuter.style.position = 'fixed';
+    cursorOuter.style.width = '40px';
+    cursorOuter.style.height = '40px';
+    cursorOuter.style.borderRadius = '50%';
+    cursorOuter.style.border = '1px solid rgba(52, 152, 219, 0.5)';
+    cursorOuter.style.pointerEvents = 'none';
+    cursorOuter.style.transform = 'translate(-50%, -50%)';
+    cursorOuter.style.zIndex = '9998';
+    cursorOuter.style.transition = 'width 0.3s, height 0.3s, border-color 0.3s';
+    document.body.appendChild(cursorOuter);
+    
+    document.addEventListener('mousemove', function(e) {
+        cursor.style.top = e.clientY + 'px';
+        cursor.style.left = e.clientX + 'px';
+        
+        // 使外圈延迟跟随
+        setTimeout(() => {
+            cursorOuter.style.top = e.clientY + 'px';
+            cursorOuter.style.left = e.clientX + 'px';
+        }, 80);
+    });
+    
+    // 鼠标在可点击元素上的效果
+    const clickables = document.querySelectorAll('a, button, input[type="submit"], .award-item, .timeline-item, .photo-frame');
+    clickables.forEach(element => {
+        element.addEventListener('mouseenter', function() {
+            cursor.style.width = '12px';
+            cursor.style.height = '12px';
+            cursor.style.backgroundColor = 'rgba(231, 76, 60, 0.5)';
+            
+            cursorOuter.style.width = '50px';
+            cursorOuter.style.height = '50px';
+            cursorOuter.style.border = '1px solid rgba(231, 76, 60, 0.7)';
+        });
+        
+        element.addEventListener('mouseleave', function() {
+            cursor.style.width = '20px';
+            cursor.style.height = '20px';
+            cursor.style.backgroundColor = 'rgba(52, 152, 219, 0.3)';
+            
+            cursorOuter.style.width = '40px';
+            cursorOuter.style.height = '40px';
+            cursorOuter.style.border = '1px solid rgba(52, 152, 219, 0.5)';
+        });
+    });
+    
+    // 鼠标点击效果
+    document.addEventListener('mousedown', function() {
+        cursor.style.transform = 'translate(-50%, -50%) scale(0.7)';
+    });
+    
+    document.addEventListener('mouseup', function() {
+        cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+    });
+    
+    // 添加打印功能按钮
+    const printButton = document.createElement('button');
+    printButton.innerHTML = '<i class="fas fa-print"></i> 打印简历';
+    printButton.className = 'print-button';
+    printButton.style.position = 'fixed';
+    printButton.style.bottom = '30px';
+    printButton.style.left = '30px';
+    printButton.style.padding = '10px 20px';
+    printButton.style.backgroundColor = 'var(--primary-color)';
+    printButton.style.color = 'white';
+    printButton.style.border = 'none';
+    printButton.style.borderRadius = '30px';
+    printButton.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.2)';
+    printButton.style.cursor = 'pointer';
+    printButton.style.zIndex = '999';
+    printButton.style.transition = 'all 0.3s';
+    
+    printButton.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-3px)';
+        this.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
+    });
+    
+    printButton.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.2)';
+    });
+    
+    printButton.addEventListener('click', function() {
+        window.print();
+    });
+    
+    document.body.appendChild(printButton);
+    
+    // 添加暗黑模式切换按钮
+    const darkModeButton = document.createElement('button');
+    darkModeButton.innerHTML = '<i class="fas fa-moon"></i>';
+    darkModeButton.className = 'dark-mode-button';
+    darkModeButton.style.position = 'fixed';
+    darkModeButton.style.top = '20px';
+    darkModeButton.style.left = '20px';
+    darkModeButton.style.width = '45px';
+    darkModeButton.style.height = '45px';
+    darkModeButton.style.borderRadius = '50%';
+    darkModeButton.style.backgroundColor = 'var(--primary-color)';
+    darkModeButton.style.color = 'white';
+    darkModeButton.style.border = 'none';
+    darkModeButton.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)';
+    darkModeButton.style.cursor = 'pointer';
+    darkModeButton.style.zIndex = '999';
+    darkModeButton.style.transition = 'all 0.3s';
+    darkModeButton.style.display = 'flex';
+    darkModeButton.style.justifyContent = 'center';
+    darkModeButton.style.alignItems = 'center';
+    darkModeButton.style.fontSize = '18px';
+    
+    let isDarkMode = false;
+    
+    darkModeButton.addEventListener('click', function() {
+        isDarkMode = !isDarkMode;
+        
+        if (isDarkMode) {
+            document.documentElement.style.setProperty('--background-color', '#1a1a1a');
+            document.documentElement.style.setProperty('--text-color', '#f8f9fa');
+            document.documentElement.style.setProperty('--light-gray', '#333');
+            document.body.style.backgroundColor = '#1a1a1a';
+            document.querySelectorAll('.container, .timeline-content, .info-item, .cloud-item').forEach(el => {
+                el.style.backgroundColor = '#2d2d2d';
+                el.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+            });
+            this.innerHTML = '<i class="fas fa-sun"></i>';
+        } else {
+            document.documentElement.style.setProperty('--background-color', '#f8f9fa');
+            document.documentElement.style.setProperty('--text-color', '#333');
+            document.documentElement.style.setProperty('--light-gray', '#e9ecef');
+            document.body.style.backgroundColor = '#f8f9fa';
+            document.querySelectorAll('.container, .timeline-content, .info-item, .cloud-item').forEach(el => {
+                el.style.backgroundColor = '';
+                el.style.boxShadow = '';
+            });
+            this.innerHTML = '<i class="fas fa-moon"></i>';
+        }
+    });
+    
+    document.body.appendChild(darkModeButton);
 });
 
 // 主题切换功能
@@ -323,12 +554,17 @@ function createThemeSwitcher() {
     const switcherContainer = document.createElement('div');
     switcherContainer.className = 'theme-switcher';
     switcherContainer.style.position = 'fixed';
-    switcherContainer.style.top = '20px';
+    switcherContainer.style.top = '80px';
     switcherContainer.style.right = '20px';
     switcherContainer.style.zIndex = '1000';
     switcherContainer.style.display = 'flex';
     switcherContainer.style.flexDirection = 'column';
     switcherContainer.style.gap = '10px';
+    switcherContainer.style.background = 'rgba(255, 255, 255, 0.2)';
+    switcherContainer.style.backdropFilter = 'blur(10px)';
+    switcherContainer.style.padding = '10px';
+    switcherContainer.style.borderRadius = '30px';
+    switcherContainer.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)';
     
     themeColors.forEach((theme, index) => {
         const button = document.createElement('button');
@@ -352,6 +588,32 @@ function createThemeSwitcher() {
         button.addEventListener('click', function() {
             document.documentElement.style.setProperty('--primary-color', theme.primary);
             document.documentElement.style.setProperty('--secondary-color', theme.secondary);
+            
+            // 添加波纹效果
+            const ripple = document.createElement('div');
+            ripple.style.position = 'fixed';
+            ripple.style.top = '50%';
+            ripple.style.left = '50%';
+            ripple.style.transform = 'translate(-50%, -50%)';
+            ripple.style.width = '0';
+            ripple.style.height = '0';
+            ripple.style.borderRadius = '50%';
+            ripple.style.backgroundColor = theme.primary;
+            ripple.style.opacity = '0.2';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.transition = 'all 1s ease-out';
+            ripple.style.zIndex = '0';
+            
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.style.width = '300vw';
+                ripple.style.height = '300vw';
+            }, 10);
+            
+            setTimeout(() => {
+                document.body.removeChild(ripple);
+            }, 1000);
         });
         
         switcherContainer.appendChild(button);
